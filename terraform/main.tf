@@ -97,7 +97,7 @@ resource "aws_eks_cluster" "main" {
   version  = var.kubernetes_version
 
   vpc_config {
-    subnet_ids = [aws_subnet.a.id, aws_subnet.b.id]
+    subnet_ids = [aws_subnet.a.id, aws_subnet.b.id, aws_subnet.private.id]
   }
 
   depends_on = [aws_iam_role_policy_attachment.eks_cluster_policy]
@@ -131,9 +131,53 @@ resource "aws_eks_fargate_profile" "default" {
   cluster_name           = aws_eks_cluster.main.name
   fargate_profile_name   = "fargate-default"
   pod_execution_role_arn = aws_iam_role.eks_fargate.arn
-  subnet_ids             = [aws_subnet.a.id, aws_subnet.b.id]
+  subnet_ids             = [aws_subnet.private.id]
 
   selector {
     namespace = "default"
   }
+}
+
+# --- Private subnet + NAT Gateway: required for EKS Fargate profiles ---
+
+resource "aws_eip" "nat" {
+  domain = "vpc"
+}
+
+resource "aws_nat_gateway" "main" {
+  allocation_id = aws_eip.nat.id
+  subnet_id     = aws_subnet.a.id
+
+  tags = {
+    Name = "${var.project_name}-nat"
+  }
+}
+
+resource "aws_subnet" "private" {
+  vpc_id            = aws_vpc.main.id
+  cidr_block        = var.private_subnet_cidr
+  availability_zone = "${var.aws_region}a"
+
+  tags = {
+    Name                                        = "${var.project_name}-private-subnet"
+    "kubernetes.io/cluster/${var.project_name}"   = "shared"
+  }
+}
+
+resource "aws_route_table" "private" {
+  vpc_id = aws_vpc.main.id
+
+  route {
+    cidr_block     = "0.0.0.0/0"
+    nat_gateway_id = aws_nat_gateway.main.id
+  }
+
+  tags = {
+    Name = "${var.project_name}-private-rt"
+  }
+}
+
+resource "aws_route_table_association" "private" {
+  subnet_id      = aws_subnet.private.id
+  route_table_id = aws_route_table.private.id
 }

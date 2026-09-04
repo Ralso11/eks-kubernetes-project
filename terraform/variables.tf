@@ -33,3 +33,9 @@ variable "kubernetes_version" {
   type        = string
   default     = "1.32"
 }
+
+variable "private_subnet_cidr" {
+  description = "IP address range for the private subnet (used by Fargate)"
+  type        = string
+  default     = "10.2.3.0/24"
+}
