@@ -129,7 +129,7 @@ resource "aws_iam_role_policy_attachment" "eks_fargate_policy" {
 
 resource "aws_eks_fargate_profile" "default" {
   cluster_name           = aws_eks_cluster.main.name
-  fargate_profile_name   = "${var.project_name}-default"
+  fargate_profile_name   = "fargate-default"
   pod_execution_role_arn = aws_iam_role.eks_fargate.arn
   subnet_ids             = [aws_subnet.a.id, aws_subnet.b.id]
 
