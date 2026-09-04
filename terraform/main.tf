@@ -17,9 +17,9 @@ resource "aws_subnet" "a" {
   map_public_ip_on_launch = true
 
   tags = {
-    Name                                          = "${var.project_name}-subnet-a"
-    "kubernetes.io/role/elb"                      = "1"
-    "kubernetes.io/cluster/${var.project_name}"   = "shared"
+    Name                                        = "${var.project_name}-subnet-a"
+    "kubernetes.io/role/elb"                    = "1"
+    "kubernetes.io/cluster/${var.project_name}" = "shared"
   }
 }
 
@@ -30,9 +30,9 @@ resource "aws_subnet" "b" {
   map_public_ip_on_launch = true
 
   tags = {
-    Name                                          = "${var.project_name}-subnet-b"
-    "kubernetes.io/role/elb"                      = "1"
-    "kubernetes.io/cluster/${var.project_name}"   = "shared"
+    Name                                        = "${var.project_name}-subnet-b"
+    "kubernetes.io/role/elb"                    = "1"
+    "kubernetes.io/cluster/${var.project_name}" = "shared"
   }
 }
 
