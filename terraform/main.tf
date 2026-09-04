@@ -160,7 +160,7 @@ resource "aws_subnet" "private" {
 
   tags = {
     Name                                        = "${var.project_name}-private-subnet"
-    "kubernetes.io/cluster/${var.project_name}"   = "shared"
+    "kubernetes.io/cluster/${var.project_name}" = "shared"
   }
 }
 
