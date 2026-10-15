@@ -24,16 +24,21 @@ single working session rather than left running.
 
 ## Architecture
 
-```
-VPC (2 public subnets across 2 AZs + 1 private subnet)
-        |
-Internet Gateway (public) / NAT Gateway (private, for Fargate)
-        |
-EKS Cluster (managed control plane)
-        |
-Fargate Profile (namespace: default) — runs pods with no worker nodes
-        |
-Test pod (hello-eks, nginx image) — verified Running via kubectl
+```mermaid
+flowchart TB
+    I["Internet"] --> IGW["Internet Gateway"]
+    CP["EKS control plane<br/>(managed by AWS)"]
+    subgraph VPC["VPC 10.2.0.0/16"]
+        subgraph PUBS["Public subnets A and B (2 Availability Zones)"]
+            NAT["NAT Gateway<br/>(in subnet A)"]
+        end
+        subgraph PRIV["Private subnet"]
+            FP["Fargate profile: default namespace<br/>test pod hello-eks (nginx)"]
+        end
+    end
+    CP -->|"schedules pods"| FP
+    FP -->|"outbound traffic"| NAT
+    NAT --> IGW
 ```
 
 - **EKS** — AWS's managed Kubernetes control plane.
